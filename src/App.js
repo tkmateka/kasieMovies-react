@@ -1,25 +1,65 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import './App.css';
+import Movie from "./Movie";
+import SearchIcon from './search.svg';
+
+const API_KEY = 'fa777268';
+const API_URL = `http://www.omdbapi.com?apikey=${API_KEY}`;
+
+const App = () => {
+    const [movies, setMovies] = useState([]);
+    const [searchString, setSearchString] = useState('');
+
+    const searchMovies = async (title) => {
+        const response = await fetch(`${API_URL}&s=${title}`);
+        const data = await response.json();
+        setMovies(data.Search);
+    }
+
+    useEffect(() => {
+        searchMovies('Uncharted');
+        console.log('Movies', movies);
+    }, []);
+
+    return (
+        <div className="app">
+            <h1>KasiMovies</h1>
+
+            <div className="search">
+                <input
+                    type="text"
+                    placeholder="Search for movies"
+                    value={searchString}
+                    onChange={(ev) => setSearchString(ev.target.value)} />
+                <img
+                    src={SearchIcon}
+                    alt="Search Icon"
+                    onClick={() => searchMovies(searchString)} />
+            </div>
+
+            {
+                movies?.length > 0 ? (
+                    <div className="container">
+                        {movies.map((movie, index) =>
+                            <Movie
+                                key={index}
+                                Year={movie.Year}
+                                Poster={movie.Poster}
+                                Type={movie.Type}
+                                Title={movie.Title}
+                            />
+                        )}
+                    </div>
+                ) : (
+                    <div className="empty">
+                        <h2>No movies found...</h2>
+                    </div>
+                )
+            }
+        </div>
+    )
+
 }
 
 export default App;
